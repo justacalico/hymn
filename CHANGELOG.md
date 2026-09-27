@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.1.1](https://gitlab.com/HttpAnimations/hymn/compare/fbcf9665d242cdccb7de780d8f4b10530a3e0fdb..v0.1.1) - 2026-09-27
+#### Bug Fixes
+- 修掉 pages 部署的 SIGPIPE 退出码 - ([fbcf966](https://gitlab.com/HttpAnimations/hymn/commit/fbcf9665d242cdccb7de780d8f4b10530a3e0fdb)) - calico
+
+- - -
+
 ## [v0.1.0](https://gitlab.com/HttpAnimations/hymn/compare/5a7cf39243cefb8f2a0206d0c25a69ea8063e747..v0.1.0) - 2026-09-27
 #### Features
 - 平台工程、图标与测试 - ([3686a4e](https://gitlab.com/HttpAnimations/hymn/commit/3686a4eff718bc1a410f7ee263a9d32eb97e1bb5)) - calico
