@@ -15,10 +15,10 @@
       "appPermissions": {},
       "versions": [
         {
-          "version": "0.1.1",
-          "date": "2026-09-27T23:05:27Z",
-          "downloadURL": "https://gitlab.com/api/v4/projects/HttpAnimations%2Fhymn/packages/generic/release-assets/v0%2E1%2E1/hymn-ios-arm64-unsigned%2Eipa",
-          "size": 8645595,
+          "version": "0.1.2",
+          "date": "2026-09-27T23:38:34Z",
+          "downloadURL": "https://gitlab.com/api/v4/projects/HttpAnimations%2Fhymn/packages/generic/release-assets/v0%2E1%2E2/hymn-ios-arm64-unsigned%2Eipa",
+          "size": 8645597,
           "minOSVersion": "14.0"
         }
       ],
