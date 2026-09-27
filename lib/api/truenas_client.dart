@@ -75,8 +75,7 @@ typedef WebSocketConnector = WebSocketChannel Function(Uri uri);
 
 /// Default websocket connector; a top-level function so tests can invoke it
 /// without opening a real socket.
-WebSocketChannel defaultWebSocketConnector(Uri uri) =>
-    WebSocketChannel.connect(uri);
+WebSocketChannel defaultWebSocketConnector(Uri uri) => connectWebSocket(uri);
 
 class TrueNasClient implements TrueNasApi {
   final ConnectionConfig config;
@@ -86,8 +85,11 @@ class TrueNasClient implements TrueNasApi {
   TrueNasClient(
     this.config, {
     Dio? dio,
-    this._wsConnector = defaultWebSocketConnector,
-  }) : _dio = dio ?? _buildDio(config);
+    WebSocketConnector? wsConnector,
+  })  : _dio = dio ?? _buildDio(config),
+        _wsConnector = wsConnector ??
+            ((uri) => connectWebSocket(uri,
+                allowSelfSigned: config.allowSelfSigned));
 
   static Dio _buildDio(ConnectionConfig config) {
     final dio = Dio(BaseOptions(
@@ -207,7 +209,7 @@ class TrueNasClient implements TrueNasApi {
       _request('POST', '/pool/id/$id/export', body: {
         'cascade': true,
         'destroy': delete,
-        'restart_services': false,
+        'restart_services': true,
       });
 
   @override
@@ -371,8 +373,14 @@ class TrueNasClient implements TrueNasApi {
 
   @override
   Future<String?> getAppsPool() async {
-    final config = await _request<Map<String, dynamic>>('GET', '/app/config');
-    return config['pool']?.toString();
+    try {
+      final config = await _request<Map<String, dynamic>>('GET', '/docker');
+      return config['pool']?.toString();
+    } on TrueNasException {
+      // older SCALE releases expose this under app.config
+      final config = await _request<Map<String, dynamic>>('GET', '/app/config');
+      return config['pool']?.toString();
+    }
   }
 
   @override
@@ -388,8 +396,9 @@ class TrueNasClient implements TrueNasApi {
     Map<String, dynamic> values = const {},
   }) =>
       _request('POST', '/app', body: {
+        'app_name': name,
+        'catalog_app': name,
         'catalog': catalog,
-        'item': name,
         'train': train,
         'version': version,
         'values': values,
@@ -498,15 +507,18 @@ class TrueNasClient implements TrueNasApi {
   @override
   Stream<RealtimeSample> realtimeStats() async* {
     WebSocketChannel? channel;
+    StreamSubscription<dynamic>? subscription;
     try {
       channel = _wsConnector(Uri.parse(config.wsUrl));
-      await channel.ready;
+      await channel.ready.timeout(const Duration(seconds: 10));
     } catch (_) {
       channel = null;
     }
 
     if (channel == null) {
-      // Polling fallback: approximate from load average like the original app.
+      // Polling fallback: CPU from load average, which is the only realtime
+      // figure system.info exposes. Memory and network stay zero rather than
+      // showing fabricated numbers.
       while (true) {
         try {
           final info = await getSystemInfo();
@@ -515,13 +527,9 @@ class TrueNasClient implements TrueNasApi {
           final cpu = info.cores > 0
               ? (load / info.cores * 100).clamp(0.0, 100.0)
               : 0.0;
-          final usedPct = info.cores > 0
-              ? (0.3 + load / info.cores * 0.3).clamp(0.0, 0.9)
-              : 0.3;
           yield RealtimeSample(
             cpuUsage: cpu.toDouble(),
             memoryTotal: info.physicalMemory,
-            memoryUsed: (info.physicalMemory * usedPct).round(),
           );
         } catch (_) {
           // transient failure, try again next tick
@@ -532,61 +540,66 @@ class TrueNasClient implements TrueNasApi {
 
     var id = 0;
     String nextId() => (++id).toString();
-    final completer = Completer<void>();
     final controller = StreamController<RealtimeSample>();
+    final socket = channel;
 
-    channel.sink.add(jsonEncode({
-      'id': nextId(),
-      'msg': 'connect',
-      'version': '1',
-      'support': ['1'],
-    }));
+    try {
+      socket.sink.add(jsonEncode({
+        'id': nextId(),
+        'msg': 'connect',
+        'version': '1',
+        'support': ['1'],
+      }));
 
-    var authed = false;
-    channel.stream.listen(
-      (message) {
-        try {
-          final decoded = jsonDecode(message as String) as Map<String, dynamic>;
-          final msg = decoded['msg'];
-          if (msg == 'connected') {
-            channel!.sink.add(jsonEncode({
-              'id': nextId(),
-              'msg': 'method',
-              'method': 'auth.login_with_api_key',
-              'params': [config.apiKey],
-            }));
-          } else if (msg == 'result' && !authed) {
-            if (decoded['error'] == null) {
-              authed = true;
-              channel!.sink.add(jsonEncode({
+      var authed = false;
+      subscription = socket.stream.listen(
+        (message) {
+          try {
+            final decoded =
+                jsonDecode(message as String) as Map<String, dynamic>;
+            final msg = decoded['msg'];
+            if (msg == 'connected') {
+              socket.sink.add(jsonEncode({
                 'id': nextId(),
                 'msg': 'method',
-                'method': 'core.subscribe',
-                'params': ['reporting.realtime'],
+                'method': 'auth.login_with_api_key',
+                'params': [config.apiKey],
               }));
-            } else {
-              controller.addError(const TrueNasException(
-                  'websocket authentication failed'));
+            } else if (msg == 'result' && !authed) {
+              if (decoded['error'] == null) {
+                authed = true;
+                socket.sink.add(jsonEncode({
+                  'id': nextId(),
+                  'msg': 'method',
+                  'method': 'core.subscribe',
+                  'params': ['reporting.realtime'],
+                }));
+              } else {
+                controller.addError(const TrueNasException(
+                    'websocket authentication failed'));
+              }
+            } else if ((msg == 'added' || msg == 'changed') &&
+                decoded['collection'] == 'reporting.realtime') {
+              final fields = decoded['fields'];
+              if (fields is Map<String, dynamic>) {
+                controller.add(RealtimeSample.fromJson(fields));
+              }
             }
-          } else if ((msg == 'added' || msg == 'changed') &&
-              decoded['collection'] == 'reporting.realtime') {
-            final fields = decoded['fields'];
-            if (fields is Map<String, dynamic>) {
-              controller.add(RealtimeSample.fromJson(fields));
-            }
+          } catch (_) {
+            // ignore malformed frames
           }
-        } catch (_) {
-          // ignore malformed frames
-        }
-      },
-      onError: (Object e) =>
-          controller.addError(TrueNasException('websocket error: $e')),
-      onDone: () {
-        if (!controller.isClosed) controller.close();
-        if (!completer.isCompleted) completer.complete();
-      },
-    );
+        },
+        onError: (Object e) =>
+            controller.addError(TrueNasException('websocket error: $e')),
+        onDone: () {
+          if (!controller.isClosed) controller.close();
+        },
+      );
 
-    yield* controller.stream;
+      yield* controller.stream;
+    } finally {
+      await subscription?.cancel();
+      unawaited(socket.sink.close());
+    }
   }
 }

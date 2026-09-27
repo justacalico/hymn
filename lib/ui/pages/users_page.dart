@@ -271,8 +271,10 @@ class _CreateUserSheetState extends State<_CreateUserSheet> {
         smb: _smb,
       );
       if (mounted) {
+        // capture before pop; the sheet's context dies with it
+        final messenger = ScaffoldMessenger.of(context);
         Navigator.pop(context);
-        showToast(context, 'User created');
+        messenger.showSnackBar(SnackBar(content: Text('User created')));
         widget.onDone();
       }
     } catch (e) {

@@ -137,6 +137,57 @@ void main() {
       unawaited(ch.ready.catchError((Object _) {}));
     });
 
+    test('default connector falls back to polling on dead socket', () {
+      return dart_io.HttpOverrides.runZoned(() async {
+        final c = TrueNasClient(testConfig, dio: fakeDio({
+          'GET /system/info': {'version': '25.04.1', 'physmem': 1000,
+              'cores': 2, 'loadavg': [1.0]},
+        }));
+        final sample = await c.realtimeStats().first;
+        expect(sample.memoryTotal, 1000);
+      }, createHttpClient: (_) => dart_io.HttpClient());
+    });
+
+    test('getAppsPool falls back to legacy endpoint', () async {
+      final c = TrueNasClient(testConfig, dio: fakeDio({
+        'GET /app/config': {'pool': 'legacy-pool'},
+      }));
+      expect(await c.getAppsPool(), 'legacy-pool');
+    });
+
+    test('getAppsPool reads docker config', () async {
+      final c = TrueNasClient(testConfig, dio: fakeDio({
+        'GET /docker': {'pool': 'tank'},
+      }));
+      expect(await c.getAppsPool(), 'tank');
+    });
+
+    test('stream closes when the socket closes', () async {
+      final channel = MockChannel();
+      final sink = MockSink();
+      final inbound = StreamController<String>();
+      when(() => channel.ready).thenAnswer((_) async {});
+      when(() => channel.sink).thenReturn(sink);
+      when(() => sink.close(any())).thenAnswer((_) async => null);
+      when(() => channel.stream).thenAnswer((_) => inbound.stream);
+      when(() => sink.add(any())).thenAnswer((inv) {
+        final msg = jsonDecode(inv.positionalArguments.first as String);
+        scheduleMicrotask(() {
+          if (inbound.isClosed) return;
+          if (msg['msg'] == 'connect') {
+            inbound.add(jsonEncode({'msg': 'connected'}));
+          } else if (msg['method'] == 'auth.login_with_api_key') {
+            inbound.add(jsonEncode(
+                {'msg': 'result', 'id': msg['id'], 'result': true}));
+            scheduleMicrotask(inbound.close);
+          }
+        });
+      });
+      final c = TrueNasClient(testConfig,
+          dio: fakeDio({}), wsConnector: (_) => channel);
+      await expectLater(c.realtimeStats().toList(), completes);
+    });
+
     test('error message fallbacks', () async {
       final dio = fakeDio({});
       // response data without an error key
@@ -211,6 +262,7 @@ void main() {
       addTearDown(inbound.close);
       when(() => channel.ready).thenAnswer((_) async {});
       when(() => channel.sink).thenReturn(sink);
+      when(() => sink.close(any())).thenAnswer((_) async => null);
       when(() => channel.stream).thenAnswer((_) => inbound.stream);
       when(() => sink.add(any())).thenAnswer((inv) {
         final msg = jsonDecode(inv.positionalArguments.first as String);
@@ -363,13 +415,13 @@ void main() {
       final state = await connectedState(nas: nas);
       nas.failAll = true;
       nas.failWith = const TrueNasException('nope', statusCode: 401);
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.text('nope'), findsOneWidget);
     });
 
     testWidgets('pull to refresh uses quiet path', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       await tester.fling(
           find.byType(ListView).first, const Offset(0, 600), 1000);
       await tester.pumpAndSettle();
@@ -382,7 +434,7 @@ void main() {
         ..overrides['getPools'] = <Pool>[]
         ..overrides['getServices'] = <NasService>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.text('No pools configured'), findsOneWidget);
       expect(find.text('No services reported'), findsOneWidget);
       expect(find.textContaining('1.0 TiB'), findsNothing);
@@ -391,7 +443,7 @@ void main() {
     testWidgets('dismiss failure shows error toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
       nas.failAll = true;
@@ -404,7 +456,7 @@ void main() {
     testWidgets('reboot failure shows toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       nas.failAll = true;
       await tester.tap(find.text('Reboot'));
       await tester.pumpAndSettle();
@@ -416,7 +468,7 @@ void main() {
         (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       // second switch is the stopped NFS service
       await tester.tap(find.byType(Switch).at(1));
       await tester.pumpAndSettle();
@@ -426,7 +478,7 @@ void main() {
     testWidgets('toggle failure shows toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       nas.failAll = true;
       await tester.tap(find.byType(Switch).first);
       await tester.pumpAndSettle();
@@ -439,7 +491,7 @@ void main() {
         ..overrides['getSmbShares'] = <SmbShare>[]
         ..overrides['getNfsShares'] = <NfsShare>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       expect(find.text('No SMB shares'), findsOneWidget);
       expect(find.text('No NFS shares'), findsOneWidget);
     });
@@ -447,7 +499,7 @@ void main() {
     testWidgets('delete nfs share', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.byIcon(Icons.delete_outline).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
@@ -458,7 +510,7 @@ void main() {
     testWidgets('smb share without name is rejected', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.text('SMB'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Path'));
@@ -473,7 +525,7 @@ void main() {
     testWidgets('share toggles and failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.text('SMB'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Read only'));
@@ -494,7 +546,7 @@ void main() {
     testWidgets('delete share failures show toasts', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
@@ -512,14 +564,14 @@ void main() {
     testWidgets('empty state', (tester) async {
       final nas = FakeNas()..overrides['getSnapshots'] = <Snapshot>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       expect(find.text('No snapshots'), findsOneWidget);
     });
 
     testWidgets('delete failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
@@ -531,7 +583,7 @@ void main() {
     testWidgets('rollback failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.undo));
       await tester.pumpAndSettle();
@@ -542,7 +594,7 @@ void main() {
     testWidgets('name validation and recursive toggle', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       await tester.tap(find.byIcon(Icons.add_a_photo_outlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Dataset'));
@@ -568,14 +620,14 @@ void main() {
     testWidgets('pool with no datasets', (tester) async {
       final nas = FakeNas()..overrides['getDatasets'] = <Dataset>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       expect(find.text('No datasets yet'), findsOneWidget);
     });
 
     testWidgets('scrub failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       nas.failAll = true;
       await tester.tap(find.byType(PopupMenuButton<String>));
       await tester.pumpAndSettle();
@@ -586,7 +638,7 @@ void main() {
     testWidgets('export failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       nas.failAll = true;
       await tester.tap(find.byType(PopupMenuButton<String>));
       await tester.pumpAndSettle();
@@ -600,7 +652,7 @@ void main() {
     testWidgets('dataset delete failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
@@ -613,7 +665,7 @@ void main() {
         (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.text('New dataset'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, 'vms');
@@ -639,7 +691,7 @@ void main() {
     testWidgets('pool sheet: no unused disks + unselect', (tester) async {
       final nas = FakeNas()..overrides['getUnusedDisks'] = <Disk>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.byIcon(Icons.add_circle_outline));
       await tester.pumpAndSettle();
       expect(find.text('No unused disks available'), findsOneWidget);
@@ -650,7 +702,7 @@ void main() {
     testWidgets('pool sheet unselect disk', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.byIcon(Icons.add_circle_outline));
       await tester.pumpAndSettle();
       await tester.tap(find.text('sdd'));
@@ -687,7 +739,7 @@ void main() {
               shell: '/usr/sbin/nologin'),
         ];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       expect(find.byIcon(Icons.lock_outline), findsOneWidget);
     });
 
@@ -696,7 +748,7 @@ void main() {
         ..overrides['getUsers'] = <NasUser>[]
         ..overrides['getGroups'] = <NasGroup>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       expect(find.text('No users'), findsOneWidget);
       expect(find.text('No groups'), findsOneWidget);
     });
@@ -709,7 +761,7 @@ void main() {
               id: 1, gid: 0, name: 'wheel', builtin: true, smb: false),
         ];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       expect(find.text('No users'), findsOneWidget);
       expect(find.text('wheel'), findsOneWidget);
       expect(find.text('system'), findsOneWidget);
@@ -718,7 +770,7 @@ void main() {
     testWidgets('delete user failure toast', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
@@ -730,7 +782,7 @@ void main() {
     testWidgets('create user failure and smb toggle', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       await tester.tap(find.byIcon(Icons.person_add_outlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Allow SMB access'));
@@ -748,7 +800,7 @@ void main() {
     testWidgets('icon app renders fallback + failure toasts', (tester) async {
       final nas = FakeNas()..overrides['getApps'] = <NasApp>[fakeIconApp];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const AppsPage());
+      await pumpPage(tester, state, AppsPage());
       await tester.pump();
       nas.failAll = true;
       await tester.tap(find.byIcon(Icons.stop_circle_outlined).first);

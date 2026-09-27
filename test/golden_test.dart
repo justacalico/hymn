@@ -27,7 +27,7 @@ void main() {
         ..overrides['getAlerts'] = <NasAlert>[]
         ..overrides['getJobs'] = <NasJob>[fakeDoneJob];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const DashboardPage(),
+      await pumpPage(tester, state, DashboardPage(),
           size: const Size(1280, 900));
       await expectLater(find.byType(DashboardPage),
           matchesGoldenFile('goldens/dashboard.png'));
@@ -35,7 +35,7 @@ void main() {
 
     testWidgets('storage compact', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const StoragePage(),
+      await pumpPage(tester, state, StoragePage(),
           size: const Size(430, 900));
       await expectLater(find.byType(StoragePage),
           matchesGoldenFile('goldens/storage.png'));

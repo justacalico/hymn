@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -49,12 +50,25 @@ class _StatsView extends StatefulWidget {
 class _StatsViewState extends State<_StatsView> {
   final _history = SampleHistory();
   Stream<RealtimeSample>? _stream;
+  StreamSubscription<RealtimeSample>? _sub;
+  RealtimeSample? _latest;
 
   @override
   void initState() {
     super.initState();
-    // Built once so rebuilds never resubscribe.
+    // Built once so rebuilds never resubscribe; history updates only on
+    // real events, not on unrelated rebuilds.
     _stream = context.read<AppState>().client?.realtimeStats();
+    _sub = _stream?.listen((sample) {
+      _history.add(sample);
+      if (mounted) setState(() => _latest = sample);
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -78,11 +92,9 @@ class _StatsViewState extends State<_StatsView> {
           ],
         ),
         const SizedBox(height: 8),
-        StreamBuilder<RealtimeSample>(
-          stream: _stream,
-          builder: (context, snapshot) {
-            final sample = snapshot.data;
-            if (sample != null) _history.add(sample);
+        Builder(
+          builder: (context) {
+            final sample = _latest;
             final cpuSpots = _spots((s) => s.cpuUsage);
             final memSpots =
                 _spots((s) => s.memoryTotal > 0 ? s.memoryUsed / s.memoryTotal * 100 : 0);

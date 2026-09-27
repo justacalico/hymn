@@ -48,7 +48,7 @@ class SnapshotsPage extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.w700)),
                 ),
                 IconButton(
-                  onPressed: () => _createSnapshot(context, data.datasets),
+                  onPressed: () => _createSnapshot(context, data.datasets, refresh),
                   icon: const Icon(Icons.add_a_photo_outlined),
                   tooltip: 'New snapshot',
                 ),
@@ -85,8 +85,9 @@ class SnapshotsPage extends StatelessWidget {
     );
   }
 
-  void _createSnapshot(BuildContext context, List<Dataset> datasets) {
-    showModalBottomSheet<void>(
+  Future<void> _createSnapshot(
+      BuildContext context, List<Dataset> datasets, VoidCallback refresh) async {
+    final created = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -96,6 +97,10 @@ class SnapshotsPage extends StatelessWidget {
         child: _CreateSnapshotSheet(datasets: datasets),
       ),
     );
+    if (created == true && context.mounted) {
+      showToast(context, 'Snapshot created');
+      refresh();
+    }
   }
 }
 
@@ -232,10 +237,7 @@ class _CreateSnapshotSheetState extends State<_CreateSnapshotSheet> {
     try {
       await client.createSnapshot(
           dataset: _dataset!, name: name, recursive: _recursive);
-      if (mounted) {
-        Navigator.pop(context);
-        showToast(context, 'Snapshot created');
-      }
+      if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
         setState(() => _busy = false);

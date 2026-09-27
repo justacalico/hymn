@@ -84,7 +84,7 @@ void main() {
   group('DashboardPage', () {
     testWidgets('renders stat cards and panels', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.text('Dashboard'), findsOneWidget);
       expect(find.text('Storage pools'), findsOneWidget);
       expect(find.text('Total storage'), findsOneWidget);
@@ -97,7 +97,7 @@ void main() {
 
     testWidgets('alerts banner opens dismiss sheet', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.textContaining('active alert'), findsOneWidget);
       await tester.tap(find.text('View'));
       await tester.pumpAndSettle();
@@ -109,7 +109,7 @@ void main() {
     testWidgets('no alerts hides banner', (tester) async {
       final nas = FakeNas()..overrides['getAlerts'] = <NasAlert>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.textContaining('active alert'), findsNothing);
     });
 
@@ -117,7 +117,7 @@ void main() {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
       nas.failAll = true;
-      await pumpPage(tester, state, const DashboardPage());
+      await pumpPage(tester, state, DashboardPage());
       expect(find.text('Could not load data'), findsOneWidget);
       nas.failAll = false;
       await tester.tap(find.text('Try again'));
@@ -127,7 +127,7 @@ void main() {
 
     testWidgets('compact layout stacks cards', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const DashboardPage(),
+      await pumpPage(tester, state, DashboardPage(),
           size: const Size(400, 900));
       expect(find.text('Dashboard'), findsOneWidget);
     });
@@ -136,7 +136,7 @@ void main() {
   group('DisksPage', () {
     testWidgets('lists disks with usage status', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const DisksPage());
+      await pumpPage(tester, state, DisksPage());
       expect(find.text('Disks'), findsOneWidget);
       expect(find.text('sda'), findsOneWidget);
       expect(find.text('sdd'), findsOneWidget);
@@ -147,7 +147,7 @@ void main() {
     testWidgets('empty state', (tester) async {
       final nas = FakeNas()..overrides['getDisks'] = <Disk>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const DisksPage());
+      await pumpPage(tester, state, DisksPage());
       expect(find.text('No disks detected'), findsOneWidget);
     });
   });
@@ -155,7 +155,7 @@ void main() {
   group('StoragePage', () {
     testWidgets('renders pool with datasets', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       expect(find.text('tank'), findsOneWidget);
       expect(find.textContaining('RAIDZ1'), findsWidgets);
       expect(find.text('media'), findsOneWidget);
@@ -165,7 +165,7 @@ void main() {
     testWidgets('create dataset sheet validates and submits', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.text('New dataset'));
       await tester.pumpAndSettle();
       expect(find.text('New dataset in tank'), findsOneWidget);
@@ -183,7 +183,7 @@ void main() {
     testWidgets('create pool flow', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.byIcon(Icons.add_circle_outline));
       await tester.pumpAndSettle();
       expect(find.text('Create pool'), findsWidgets);
@@ -213,7 +213,7 @@ void main() {
     testWidgets('scrub and export via pool menu', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.byType(PopupMenuButton<String>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Run scrub'));
@@ -231,7 +231,7 @@ void main() {
     testWidgets('delete dataset requires confirm', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
       expect(find.text('Delete tank/media?'), findsOneWidget);
@@ -243,7 +243,7 @@ void main() {
     testWidgets('empty pools show empty state', (tester) async {
       final nas = FakeNas()..overrides['getPools'] = <Pool>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const StoragePage());
+      await pumpPage(tester, state, StoragePage());
       expect(find.text('No storage pools'), findsOneWidget);
     });
   });
@@ -251,7 +251,7 @@ void main() {
   group('SharesPage', () {
     testWidgets('lists smb and nfs shares', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       expect(find.text('media'), findsOneWidget);
       expect(find.text('/mnt/tank/backups'), findsOneWidget);
       expect(find.textContaining('SMB / WINDOWS'), findsOneWidget);
@@ -260,7 +260,7 @@ void main() {
     testWidgets('create smb share', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.text('SMB'));
       await tester.pumpAndSettle();
       // submit with nothing selected -> rejected
@@ -280,7 +280,7 @@ void main() {
     testWidgets('create nfs share', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.text('NFS'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Path'));
@@ -297,7 +297,7 @@ void main() {
     testWidgets('delete smb share', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SharesPage());
+      await pumpPage(tester, state, SharesPage());
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
@@ -309,7 +309,7 @@ void main() {
   group('SnapshotsPage', () {
     testWidgets('lists grouped snapshots', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       expect(find.text('auto-2026-09-01'), findsOneWidget);
       expect(find.textContaining('TANK/MEDIA'), findsWidgets);
     });
@@ -317,7 +317,7 @@ void main() {
     testWidgets('create snapshot', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       await tester.tap(find.byIcon(Icons.add_a_photo_outlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Create snapshot'));
@@ -335,7 +335,7 @@ void main() {
     testWidgets('rollback and delete', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SnapshotsPage());
+      await pumpPage(tester, state, SnapshotsPage());
       await tester.tap(find.byIcon(Icons.undo));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Roll back'));
@@ -352,7 +352,7 @@ void main() {
   group('AppsPage', () {
     testWidgets('lists installed apps and catalog', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppsPage());
+      await pumpPage(tester, state, AppsPage());
       expect(find.text('plex'), findsOneWidget);
       expect(find.text('immich'), findsOneWidget);
       expect(find.text('Installed on pool tank'), findsOneWidget);
@@ -362,7 +362,7 @@ void main() {
     testWidgets('stop, start and delete', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const AppsPage());
+      await pumpPage(tester, state, AppsPage());
       // stop the running app (plex card)
       await tester.tap(find.byIcon(Icons.stop_circle_outlined).first);
       await tester.pumpAndSettle();
@@ -381,7 +381,7 @@ void main() {
 
     testWidgets('open portal launches url', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppsPage());
+      await pumpPage(tester, state, AppsPage());
       expect(find.text('Open'), findsOneWidget);
       await tester.tap(find.text('Open'));
       await tester.pump();
@@ -392,7 +392,7 @@ void main() {
         ..overrides['getApps'] = <NasApp>[]
         ..overrides['getAvailableApps'] = <AvailableApp>[];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const AppsPage());
+      await pumpPage(tester, state, AppsPage());
       expect(find.text('No apps installed'), findsOneWidget);
     });
   });
@@ -400,7 +400,7 @@ void main() {
   group('UsersPage', () {
     testWidgets('lists users and groups', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       expect(find.text('calico'), findsOneWidget);
       expect(find.text('root'), findsOneWidget);
       expect(find.text('media'), findsOneWidget);
@@ -410,7 +410,7 @@ void main() {
     testWidgets('create user', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       await tester.tap(find.byIcon(Icons.person_add_outlined));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Create user'));
@@ -426,7 +426,7 @@ void main() {
     testWidgets('delete non-builtin user', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const UsersPage());
+      await pumpPage(tester, state, UsersPage());
       await tester.tap(find.byIcon(Icons.delete_outline).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
@@ -438,7 +438,7 @@ void main() {
   group('StatsPage', () {
     testWidgets('renders live charts', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const StatsPage());
+      await pumpPage(tester, state, StatsPage());
       await tester.pump();
       expect(find.text('Stats'), findsOneWidget);
       expect(find.text('CPU'), findsWidgets);
@@ -452,7 +452,7 @@ void main() {
   group('SettingsPage', () {
     testWidgets('shows server info and services', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       expect(find.text('nas.home'), findsWidgets);
       expect(find.text('CIFS'), findsOneWidget);
       expect(find.text('NFS'), findsOneWidget);
@@ -463,7 +463,7 @@ void main() {
     testWidgets('service toggle calls api', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       await tester.tap(find.byType(Switch).first);
       await tester.pumpAndSettle();
       expect(nas.calls, contains('stopService'));
@@ -472,7 +472,7 @@ void main() {
     testWidgets('reboot confirms then calls api', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       await tester.ensureVisible(find.text('Reboot'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Reboot'));
@@ -485,7 +485,7 @@ void main() {
     testWidgets('shutdown confirms then calls api', (tester) async {
       final nas = FakeNas();
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       await tester.ensureVisible(find.text('Shut down'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Shut down'));
@@ -497,7 +497,7 @@ void main() {
 
     testWidgets('theme segmented control', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
       expect(state.theme, ThemeSetting.dark);
@@ -505,7 +505,7 @@ void main() {
 
     testWidgets('disconnect clears config', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const SettingsPage());
+      await pumpPage(tester, state, SettingsPage());
       await tester.scrollUntilVisible(find.text('Disconnect'), 200);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Disconnect'));

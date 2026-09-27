@@ -261,7 +261,8 @@ void main() {
       expect(jsonDecode(adapter.lastBody!)['pool'], 'tank');
       await c.installApp(
           name: 'n', catalog: 'TRUENAS', train: 'community', version: '1');
-      expect(jsonDecode(adapter.lastBody!)['item'], 'n');
+      expect(jsonDecode(adapter.lastBody!)['app_name'], 'n');
+      expect(jsonDecode(adapter.lastBody!)['catalog_app'], 'n');
       await c.startApp('plex');
       await c.stopApp('plex');
       await c.deleteApp('plex');
@@ -330,6 +331,7 @@ void main() {
 
       when(() => channel.ready).thenAnswer((_) async {});
       when(() => channel.sink).thenReturn(sink);
+      when(() => sink.close(any())).thenAnswer((_) async => null);
       when(() => channel.stream).thenAnswer((_) => inbound.stream);
       when(() => sink.add(any())).thenAnswer((inv) {
         final msg = jsonDecode(inv.positionalArguments.first as String);
@@ -371,6 +373,7 @@ void main() {
       addTearDown(inbound.close);
       when(() => channel.ready).thenAnswer((_) async {});
       when(() => channel.sink).thenReturn(sink);
+      when(() => sink.close(any())).thenAnswer((_) async => null);
       when(() => channel.stream).thenAnswer((_) => inbound.stream);
       when(() => sink.add(any())).thenAnswer((inv) {
         final msg = jsonDecode(inv.positionalArguments.first as String);
@@ -404,7 +407,7 @@ void main() {
       final sample = await c.realtimeStats().first;
       expect(sample.cpuUsage, 50.0);
       expect(sample.memoryTotal, 1000000);
-      expect(sample.memoryUsed, greaterThan(0));
+      expect(sample.memoryUsed, 0);
     });
 
     test('polling tolerates transient failures', () async {

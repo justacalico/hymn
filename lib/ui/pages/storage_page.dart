@@ -369,8 +369,10 @@ class _CreateDatasetSheetState extends State<_CreateDatasetSheet> {
         quota: quotaGiB != null && quotaGiB > 0 ? quotaGiB * 1024 * 1024 * 1024 : null,
       );
       if (mounted) {
+        // capture before pop; the sheet's context dies with it
+        final messenger = ScaffoldMessenger.of(context);
         Navigator.pop(context);
-        showToast(context, 'Dataset $name created');
+        messenger.showSnackBar(SnackBar(content: Text('Dataset $name created')));
         widget.onDone();
       }
     } catch (e) {
@@ -495,8 +497,10 @@ class _CreatePoolSheetState extends State<_CreatePoolSheet> {
         disks: _selected.toList(),
       );
       if (mounted) {
+        // capture before pop; the sheet's context dies with it
+        final messenger = ScaffoldMessenger.of(context);
         Navigator.pop(context);
-        showToast(context, 'Pool $name created');
+        messenger.showSnackBar(SnackBar(content: Text('Pool $name created')));
         widget.onDone();
       }
     } catch (e) {

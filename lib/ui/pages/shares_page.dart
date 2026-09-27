@@ -297,8 +297,10 @@ class _CreateShareSheetState extends State<_CreateShareSheet> {
         );
       }
       if (mounted) {
+        // capture before pop; the sheet's context dies with it
+        final messenger = ScaffoldMessenger.of(context);
         Navigator.pop(context);
-        showToast(context, 'Share created');
+        messenger.showSnackBar(SnackBar(content: Text('Share created')));
         widget.onDone();
       }
     } catch (e) {
