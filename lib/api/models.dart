@@ -388,7 +388,7 @@ class Snapshot {
     } else if (creation['value'] != null) {
       date = DateTime.tryParse(creation['value'].toString());
     }
-    final full = _str(json['id'].toString().isNotEmpty ? json['id'] : json['snapshot_name']);
+    final full = _str(json['id'] ?? json['snapshot_name']);
     final atIndex = full.indexOf('@');
     return Snapshot(
       id: full,

@@ -3,14 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../api/truenas_client.dart';
+import '../../api/api.dart';
+import '../../api/truenas_client.dart' show TrueNasException;
 import '../../app_state.dart';
 import '../theme.dart';
 
 /// Loads data through the TrueNAS client once on mount and exposes a manual
 /// refresh. Shows a spinner while loading and an [EmptyState] on failure.
 class DataLoader<T> extends StatefulWidget {
-  final Future<T> Function(TrueNasClient client) load;
+  final Future<T> Function(TrueNasApi client) load;
   final Widget Function(BuildContext context, T data, VoidCallback refresh)
       builder;
   final Duration? autoRefresh;

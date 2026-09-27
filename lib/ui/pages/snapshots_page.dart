@@ -202,6 +202,15 @@ class _CreateSnapshotSheetState extends State<_CreateSnapshotSheet> {
   bool _busy = false;
 
   @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    _nameController.text =
+        'manual-${now.year}${two(now.month)}${two(now.day)}-${two(now.hour)}${two(now.minute)}';
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
@@ -237,12 +246,6 @@ class _CreateSnapshotSheetState extends State<_CreateSnapshotSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final suggested =
-        'manual-${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}-${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}';
-    _nameController.text = _nameController.text.isEmpty && !_busy
-        ? suggested
-        : _nameController.text;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(

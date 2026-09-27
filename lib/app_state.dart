@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'api/api.dart';
 import 'api/truenas_client.dart';
 import 'config_store.dart';
 
@@ -17,10 +18,10 @@ enum ConnectionStatus { unknown, connecting, connected, failed }
 
 class AppState extends ChangeNotifier {
   final ConfigStore store;
-  final TrueNasClient Function(ConnectionConfig) clientFactory;
+  final TrueNasApi Function(ConnectionConfig) clientFactory;
 
   ConnectionConfig? _config;
-  TrueNasClient? _client;
+  TrueNasApi? _client;
   ConnectionStatus _status = ConnectionStatus.unknown;
   String? _error;
   ThemeSetting _theme = ThemeSetting.system;
@@ -28,11 +29,11 @@ class AppState extends ChangeNotifier {
   bool _checking = false;
   bool _ready = false;
 
-  AppState(this.store, {TrueNasClient Function(ConnectionConfig)? clientFactory})
+  AppState(this.store, {TrueNasApi Function(ConnectionConfig)? clientFactory})
       : clientFactory = clientFactory ?? ((c) => TrueNasClient(c));
 
   ConnectionConfig? get config => _config;
-  TrueNasClient? get client => _client;
+  TrueNasApi? get client => _client;
   ConnectionStatus get status => _status;
   String? get error => _error;
   ThemeSetting get theme => _theme;

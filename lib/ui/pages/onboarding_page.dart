@@ -127,15 +127,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           : null,
                     ),
                     const SizedBox(height: 8),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Allow self-signed certificates'),
-                      subtitle: const Text(
-                          'Common on local NAS installs. Leave on unless you have a valid cert.'),
-                      value: _selfSigned,
-                      onChanged: connecting
-                          ? null
-                          : (v) => setState(() => _selfSigned = v),
+                    Material(
+                      type: MaterialType.transparency,
+                      child: SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Allow self-signed certificates'),
+                        subtitle: const Text(
+                            'Common on local NAS installs. Leave on unless you have a valid cert.'),
+                        value: _selfSigned,
+                        onChanged: connecting
+                            ? null
+                            : (v) => setState(() => _selfSigned = v),
+                      ),
                     ),
                     if (state.status == ConnectionStatus.failed &&
                         state.error != null)

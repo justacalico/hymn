@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'api.dart';
 import 'io_adapter_stub.dart' if (dart.library.io) 'io_adapter.dart';
 import 'models.dart';
 
@@ -72,9 +73,12 @@ class ConnectionConfig {
 /// Callback used to substitute the websocket factory in tests.
 typedef WebSocketConnector = WebSocketChannel Function(Uri uri);
 
-WebSocketChannel _defaultConnector(Uri uri) => WebSocketChannel.connect(uri);
+/// Default websocket connector; a top-level function so tests can invoke it
+/// without opening a real socket.
+WebSocketChannel defaultWebSocketConnector(Uri uri) =>
+    WebSocketChannel.connect(uri);
 
-class TrueNasClient {
+class TrueNasClient implements TrueNasApi {
   final ConnectionConfig config;
   final Dio _dio;
   final WebSocketConnector _wsConnector;
@@ -82,7 +86,7 @@ class TrueNasClient {
   TrueNasClient(
     this.config, {
     Dio? dio,
-    this._wsConnector = _defaultConnector,
+    this._wsConnector = defaultWebSocketConnector,
   }) : _dio = dio ?? _buildDio(config);
 
   static Dio _buildDio(ConnectionConfig config) {
@@ -133,6 +137,7 @@ class TrueNasClient {
       _request<List<dynamic>>('GET', path, query: query);
 
   /// Checks connectivity and credentials. Returns the system version.
+  @override
   Future<String> healthCheck() async {
     final info = await getSystemInfo();
     if (info.version.isEmpty) {
@@ -143,34 +148,43 @@ class TrueNasClient {
 
   // System
 
+  @override
   Future<SystemInfo> getSystemInfo() async =>
       SystemInfo.fromJson(await _request('GET', '/system/info'));
 
+  @override
   Future<NasVersion> getVersion() async =>
       NasVersion.fromJson(await _request('GET', '/system/version'));
 
+  @override
   Future<void> reboot() => _request('POST', '/system/reboot');
 
+  @override
   Future<void> shutdown() => _request('POST', '/system/shutdown');
 
   // Alerts
 
+  @override
   Future<List<NasAlert>> getAlerts() async =>
       (await _get('/alert/list')).map((a) => NasAlert.fromJson(a)).toList();
 
+  @override
   Future<void> dismissAlert(String uuid) =>
       _request('POST', '/alert/dismiss', body: jsonEncode(uuid));
 
   // Jobs
 
+  @override
   Future<List<NasJob>> getJobs() async =>
       (await _get('/core/get_jobs')).map((j) => NasJob.fromJson(j)).toList();
 
   // Pools
 
+  @override
   Future<List<Pool>> getPools() async =>
       (await _get('/pool')).map((p) => Pool.fromJson(p)).toList();
 
+  @override
   Future<void> createPool({
     required String name,
     required String type,
@@ -188,6 +202,7 @@ class TrueNasClient {
         },
       });
 
+  @override
   Future<void> exportPool(int id, {bool delete = false}) =>
       _request('POST', '/pool/id/$id/export', body: {
         'cascade': true,
@@ -195,14 +210,17 @@ class TrueNasClient {
         'restart_services': false,
       });
 
+  @override
   Future<void> scrubPool(int id) =>
       _request('POST', '/pool/id/$id/scrub', body: {});
 
   // Datasets
 
+  @override
   Future<List<Dataset>> getDatasets() async =>
       (await _get('/pool/dataset')).map((d) => Dataset.fromJson(d)).toList();
 
+  @override
   Future<void> createDataset({
     required String name,
     String compression = 'LZ4',
@@ -221,6 +239,7 @@ class TrueNasClient {
         'share_type': shareType,
       });
 
+  @override
   Future<void> updateDataset(String id,
           {String? comments, String? compression, int? quota}) =>
       _request('PUT', '/pool/dataset/id/${Uri.encodeComponent(id)}', body: {
@@ -229,6 +248,7 @@ class TrueNasClient {
         'quota': ?quota,
       });
 
+  @override
   Future<void> deleteDataset(String id, {bool recursive = false}) => _request(
         'DELETE',
         '/pool/dataset/id/${Uri.encodeComponent(id)}',
@@ -237,17 +257,21 @@ class TrueNasClient {
 
   // Disks
 
+  @override
   Future<List<Disk>> getDisks() async =>
       (await _get('/disk')).map((d) => Disk.fromJson(d)).toList();
 
+  @override
   Future<List<Disk>> getUnusedDisks() async =>
       (await _get('/disk/get_unused')).map((d) => Disk.fromJson(d)).toList();
 
   // Shares
 
+  @override
   Future<List<SmbShare>> getSmbShares() async =>
       (await _get('/sharing/smb')).map((s) => SmbShare.fromJson(s)).toList();
 
+  @override
   Future<void> createSmbShare({
     required String path,
     required String name,
@@ -268,12 +292,15 @@ class TrueNasClient {
         'options': {'guestok': guestOk},
       });
 
+  @override
   Future<void> deleteSmbShare(int id) =>
       _request('DELETE', '/sharing/smb/id/$id');
 
+  @override
   Future<List<NfsShare>> getNfsShares() async =>
       (await _get('/sharing/nfs')).map((s) => NfsShare.fromJson(s)).toList();
 
+  @override
   Future<void> createNfsShare({
     required String path,
     String comment = '',
@@ -291,11 +318,13 @@ class TrueNasClient {
         'hosts': hosts,
       });
 
+  @override
   Future<void> deleteNfsShare(int id) =>
       _request('DELETE', '/sharing/nfs/id/$id');
 
   // Snapshots
 
+  @override
   Future<List<Snapshot>> getSnapshots({String? dataset}) async =>
       (await _get('/zfs/snapshot', query: {
         'limit': 0,
@@ -304,6 +333,7 @@ class TrueNasClient {
           .map((s) => Snapshot.fromJson(s))
           .toList();
 
+  @override
   Future<void> createSnapshot({
     required String dataset,
     required String name,
@@ -315,33 +345,41 @@ class TrueNasClient {
         'recursive': recursive,
       });
 
+  @override
   Future<void> deleteSnapshot(String id) => _request(
       'DELETE', '/zfs/snapshot/id/${Uri.encodeComponent(id)}');
 
+  @override
   Future<void> rollbackSnapshot(String id) => _request(
       'POST', '/zfs/snapshot/id/${Uri.encodeComponent(id)}/rollback');
 
   // Apps
 
+  @override
   Future<List<NasApp>> getApps() async =>
       (await _get('/app')).map((a) => NasApp.fromJson(a)).toList();
 
+  @override
   Future<List<AvailableApp>> getAvailableApps() async =>
       (await _get('/app/available'))
           .map((a) => AvailableApp.fromJson(a))
           .toList();
 
+  @override
   Future<List<String>> getAppCategories() async =>
       (await _get('/app/categories')).map((c) => c.toString()).toList();
 
+  @override
   Future<String?> getAppsPool() async {
     final config = await _request<Map<String, dynamic>>('GET', '/app/config');
     return config['pool']?.toString();
   }
 
+  @override
   Future<void> setAppsPool(String pool) =>
       _request('PUT', '/docker', body: {'pool': pool});
 
+  @override
   Future<void> installApp({
     required String name,
     required String catalog,
@@ -357,21 +395,26 @@ class TrueNasClient {
         'values': values,
       });
 
+  @override
   Future<void> startApp(String id) =>
       _request('POST', '/app/id/$id/start');
 
+  @override
   Future<void> stopApp(String id) =>
       _request('POST', '/app/id/$id/stop');
 
+  @override
   Future<void> deleteApp(String id, {bool removeImages = true}) =>
       _request('DELETE', '/app/id/$id',
           body: {'remove_images': removeImages, 'remove_ix_volumes': true});
 
   // Users & groups
 
+  @override
   Future<List<NasUser>> getUsers() async =>
       (await _get('/user')).map((u) => NasUser.fromJson(u)).toList();
 
+  @override
   Future<int> createUser({
     required String username,
     required String fullName,
@@ -397,6 +440,7 @@ class TrueNasClient {
     return id;
   }
 
+  @override
   Future<void> updateUser(int id,
           {String? fullName,
           String? password,
@@ -411,37 +455,47 @@ class TrueNasClient {
         'locked': ?locked,
       });
 
+  @override
   Future<void> deleteUser(int id, {bool deleteGroup = false}) =>
       _request('DELETE', '/user/id/$id', body: {'delete_group': deleteGroup});
 
+  @override
   Future<List<NasGroup>> getGroups() async =>
       (await _get('/group')).map((g) => NasGroup.fromJson(g)).toList();
 
+  @override
   Future<int> createGroup(String name, {bool smb = true}) async =>
       _request<int>('POST', '/group', body: {'name': name, 'smb': smb});
 
+  @override
   Future<void> deleteGroup(int id, {bool deleteUsers = false}) =>
       _request('DELETE', '/group/id/$id', body: {'delete_users': deleteUsers});
 
   // Services
 
+  @override
   Future<List<NasService>> getServices() async =>
       (await _get('/service')).map((s) => NasService.fromJson(s)).toList();
 
+  @override
   Future<void> startService(String name) =>
       _request('POST', '/service/start', body: {'service': name});
 
+  @override
   Future<void> stopService(String name) =>
       _request('POST', '/service/stop', body: {'service': name});
 
+  @override
   Future<void> restartService(String name) =>
       _request('POST', '/service/restart', body: {'service': name});
 
+  @override
   Future<void> setServiceEnabled(String name, bool enabled) =>
       _request('PUT', '/service/id/$name', body: {'enable': enabled});
 
   /// Streams `reporting.realtime` samples over the TrueNAS websocket API.
   /// Falls back to polling [getSystemInfo] when the socket cannot be opened.
+  @override
   Stream<RealtimeSample> realtimeStats() async* {
     WebSocketChannel? channel;
     try {
@@ -519,9 +573,6 @@ class TrueNasClient {
             final fields = decoded['fields'];
             if (fields is Map<String, dynamic>) {
               controller.add(RealtimeSample.fromJson(fields));
-            } else if (fields is Map) {
-              controller.add(RealtimeSample.fromJson(
-                  Map<String, dynamic>.from(fields)));
             }
           }
         } catch (_) {

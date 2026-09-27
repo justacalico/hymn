@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/models.dart';
-import '../../api/truenas_client.dart';
+import '../../api/api.dart';
 import '../../app_state.dart';
 import '../../utils/format.dart';
 import '../theme.dart';
@@ -205,7 +205,7 @@ class _PoolCard extends StatelessWidget {
   }
 
   Future<void> _poolAction(
-      BuildContext context, TrueNasClient? client, String action) async {
+      BuildContext context, TrueNasApi? client, String action) async {
     if (client == null) return;
     if (action == 'scrub') {
       try {
@@ -237,7 +237,7 @@ class _PoolCard extends StatelessWidget {
     }
   }
 
-  void _showCreateDataset(BuildContext context, TrueNasClient? client) {
+  void _showCreateDataset(BuildContext context, TrueNasApi? client) {
     if (client == null) return;
     showModalBottomSheet<void>(
       context: context,
@@ -293,7 +293,7 @@ class _DatasetRow extends StatelessWidget {
     );
   }
 
-  Future<void> _delete(BuildContext context, TrueNasClient? client) async {
+  Future<void> _delete(BuildContext context, TrueNasApi? client) async {
     if (client == null) return;
     final confirmed = await confirmAction(
       context,
@@ -326,7 +326,7 @@ const datasetTemplates = <(String, String, String, String)>[
 
 class _CreateDatasetSheet extends StatefulWidget {
   final String pool;
-  final TrueNasClient client;
+  final TrueNasApi client;
   final VoidCallback onDone;
 
   const _CreateDatasetSheet({

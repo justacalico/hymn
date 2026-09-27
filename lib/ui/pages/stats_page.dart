@@ -48,10 +48,17 @@ class _StatsView extends StatefulWidget {
 
 class _StatsViewState extends State<_StatsView> {
   final _history = SampleHistory();
+  Stream<RealtimeSample>? _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    // Built once so rebuilds never resubscribe.
+    _stream = context.read<AppState>().client?.realtimeStats();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final client = context.read<AppState>().client;
     final theme = Theme.of(context);
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -72,7 +79,7 @@ class _StatsViewState extends State<_StatsView> {
         ),
         const SizedBox(height: 8),
         StreamBuilder<RealtimeSample>(
-          stream: client?.realtimeStats(),
+          stream: _stream,
           builder: (context, snapshot) {
             final sample = snapshot.data;
             if (sample != null) _history.add(sample);
