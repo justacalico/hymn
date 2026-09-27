@@ -36,7 +36,7 @@ fi
 VERSION="${RELEASE_TAG#v}"
 ICON_URL="https://${CI_SERVER_HOST#gitlab.}/HttpAnimations/hymn/-/raw/main/assets/icon-1024.png"
 ICON_URL="https://gitlab.com/HttpAnimations/hymn/-/raw/main/assets/icon-1024.png"
-SOURCE_URL="https://httpanimations.gitlab.io/hymn/altstore/apps.json"
+SOURCE_URL="https://hymn-38b0ca.gitlab.io/altstore/apps.json"
 SIZE=$(curl -fsSIL "$IPA_URL" | awk '/content-length/ {print $2}' | tr -d '\r' | tail -n1)
 SIZE="${SIZE:-0}"
 

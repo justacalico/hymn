@@ -34,7 +34,7 @@ no side server, no config files.
 3. Done. Everything is stored on the device; the app talks directly to
    the TrueNAS API.
 
-The web build at `https://httpanimations.gitlab.io/hymn/` is a landing
+The web build at `https://hymn-38b0ca.gitlab.io/` is a landing
 page — the app itself targets Android, iOS, Linux, Windows and macOS.
 
 ## Install
@@ -44,7 +44,7 @@ Grab binaries from [Releases](https://gitlab.com/HttpAnimations/hymn/-/releases)
 | Platform | Format |
 |---|---|
 | Android | Signed APK / AAB |
-| iOS | Unsigned IPA (add the [AltStore source](https://httpanimations.gitlab.io/hymn/altstore/apps.json)) |
+| iOS | Unsigned IPA (add the [AltStore source](https://hymn-38b0ca.gitlab.io/altstore/apps.json)) |
 | Linux | tar.gz, deb, rpm, AppImage — x86_64 and arm64 |
 | Windows | zip — x86_64 and arm64 |
 | macOS | dmg and zip — Apple Silicon |

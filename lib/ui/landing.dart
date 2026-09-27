@@ -13,7 +13,7 @@ class HymnLandingApp extends StatelessWidget {
   static const gitlabUrl = 'https://gitlab.com/HttpAnimations/hymn';
   static const releasesUrl = 'https://gitlab.com/HttpAnimations/hymn/-/releases';
   static const altstoreUrl =
-      'https://httpanimations.gitlab.io/hymn/altstore/apps.json';
+      'https://hymn-38b0ca.gitlab.io/altstore/apps.json';
 
   @override
   Widget build(BuildContext context) {
