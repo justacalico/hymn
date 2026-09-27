@@ -2,6 +2,27 @@
   "name": "Hymn",
   "identifier": "com.httpanimations.hymn.source",
   "sourceURL": "https://httpanimations.gitlab.io/hymn/altstore/apps.json",
-  "apps": [],
-  "news": []
+  "apps": [
+    {
+      "name": "Hymn",
+      "bundleIdentifier": "com.httpanimations.hymn",
+      "developerName": "HttpAnimations",
+      "subtitle": "A simple client for TrueNAS SCALE",
+      "localizedDescription": "Manage pools, shares, snapshots and apps on your TrueNAS SCALE server.",
+      "iconURL": "https://gitlab.com/HttpAnimations/hymn/-/raw/main/assets/icon-1024.png",
+      "tintedIconURL": "https://gitlab.com/HttpAnimations/hymn/-/raw/main/assets/icon-1024.png",
+      "category": "utilities",
+      "appPermissions": {},
+      "versions": [
+        {
+          "version": "0.1.0",
+          "date": "2026-09-27T22:41:50Z",
+          "downloadURL": "https://gitlab.com/api/v4/projects/HttpAnimations%2Fhymn/packages/generic/release-assets/v0%2E1%2E0/hymn-ios-arm64-unsigned%2Eipa",
+          "size": 8645596,
+          "minOSVersion": "14.0"
+        }
+      ],
+      "news": []
+    }
+  ]
 }
