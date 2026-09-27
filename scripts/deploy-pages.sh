@@ -39,4 +39,4 @@ if [ -f altstore/apps.json ]; then
 fi
 
 echo "Pages content:"
-find public -type f | head -20
+find public -type f | head -20 || true
