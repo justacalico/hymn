@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Hymn
+Comment=A simple, native client for TrueNAS SCALE
+Exec=/opt/hymn/hymn
+Icon=hymn
+Type=Application
+Categories=Utility;Network;

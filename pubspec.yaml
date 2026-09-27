@@ -1,0 +1,56 @@
+name: hymn
+description: "A simple, native client for TrueNAS SCALE."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.5
+  dio: ^5.9.0
+  web_socket_channel: ^3.0.3
+  shared_preferences: ^2.5.3
+  flutter_secure_storage: ^10.0.0
+  fl_chart: ^1.1.1
+  intl: ^0.20.2
+  package_info_plus: ^9.0.0
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon-1024.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon-1024.png
+  adaptive_icon_background: "#0C0F14"
+  adaptive_icon_foreground: assets/icon-1024.png
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: assets/icon-1024.png
+    background_color: "#0C0F14"
+    theme_color: "#0C0F14"
+  windows:
+    generate: true
+    image_path: assets/icon-1024.png
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: assets/icon-1024.png
+  linux:
+    generate: true
+    image_path: assets/icon-1024.png
