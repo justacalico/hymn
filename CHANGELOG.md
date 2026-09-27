@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.1.2](https://gitlab.com/HttpAnimations/hymn/compare/8795b495a0ef45f89039d5293a0f6cce917a5585..v0.1.2) - 2026-09-27
+#### Bug Fixes
+- Pages 唯一域名的链接与 base-href - ([816eceb](https://gitlab.com/HttpAnimations/hymn/commit/816eceb01ae4ac2379d9d79d20fbfbe309748995)) - calico
+
+- - -
+
 ## [v0.1.1](https://gitlab.com/HttpAnimations/hymn/compare/fbcf9665d242cdccb7de780d8f4b10530a3e0fdb..v0.1.1) - 2026-09-27
 #### Bug Fixes
 - 修掉 pages 部署的 SIGPIPE 退出码 - ([fbcf966](https://gitlab.com/HttpAnimations/hymn/commit/fbcf9665d242cdccb7de780d8f4b10530a3e0fdb)) - calico
