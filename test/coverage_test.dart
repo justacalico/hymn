@@ -329,7 +329,7 @@ void main() {
       tester.view.physicalSize = const Size(1400, 1000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(const HymnLandingApp());
+      await tester.pumpWidget(HymnLandingApp());
       await tester.pumpAndSettle();
       await tester.tap(find.text('Source').first);
       await tester.tap(find.text('Download').first);
@@ -349,7 +349,7 @@ void main() {
   group('compact shell primary destinations', () {
     testWidgets('tapping a bottom destination selects it', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppShell(),
+      await pumpPage(tester, state, AppShell(),
           size: const Size(400, 800));
       await tester.tap(find.text('Storage'));
       await tester.pumpAndSettle();

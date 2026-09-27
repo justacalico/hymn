@@ -37,7 +37,7 @@ void main() {
   group('OnboardingPage', () {
     testWidgets('validates empty fields', (tester) async {
       final state = await makeState();
-      await pumpPage(tester, state, const OnboardingPage());
+      await pumpPage(tester, state, OnboardingPage());
       await tester.tap(find.text('Connect'));
       await tester.pumpAndSettle();
       expect(find.text('Enter the server address'), findsOneWidget);
@@ -46,7 +46,7 @@ void main() {
 
     testWidgets('connects with url and key', (tester) async {
       final state = await makeState();
-      await pumpPage(tester, state, const OnboardingPage());
+      await pumpPage(tester, state, OnboardingPage());
       await tester.enterText(
           find.byType(TextFormField).first, 'https://nas.home');
       await tester.enterText(
@@ -60,7 +60,7 @@ void main() {
     testWidgets('shows error on failed connect', (tester) async {
       final nas = FakeNas()..failAll = true;
       final state = await makeState(nas: nas);
-      await pumpPage(tester, state, const OnboardingPage());
+      await pumpPage(tester, state, OnboardingPage());
       await tester.enterText(
           find.byType(TextFormField).first, 'https://nas.home');
       await tester.enterText(find.byType(TextFormField).at(1), 'bad-key');
@@ -72,7 +72,7 @@ void main() {
 
     testWidgets('obscure and self-signed toggles work', (tester) async {
       final state = await makeState();
-      await pumpPage(tester, state, const OnboardingPage());
+      await pumpPage(tester, state, OnboardingPage());
       await tester.tap(find.byIcon(Icons.visibility_outlined));
       await tester.pump();
       expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);

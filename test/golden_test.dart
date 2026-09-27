@@ -15,7 +15,7 @@ void main() {
   group('goldens', () {
     testWidgets('onboarding', (tester) async {
       final state = await makeState();
-      await pumpPage(tester, state, const OnboardingPage(),
+      await pumpPage(tester, state, OnboardingPage(),
           size: const Size(430, 900));
       await expectLater(find.byType(OnboardingPage),
           matchesGoldenFile('goldens/onboarding.png'));
@@ -46,7 +46,7 @@ void main() {
         ..overrides['getAlerts'] = <NasAlert>[]
         ..overrides['getJobs'] = <NasJob>[fakeDoneJob];
       final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, const AppShell(),
+      await pumpPage(tester, state, AppShell(),
           size: const Size(1400, 900));
       await expectLater(
           find.byType(MaterialApp), matchesGoldenFile('goldens/shell.png'));
@@ -56,7 +56,7 @@ void main() {
       tester.view.physicalSize = const Size(1280, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(const HymnLandingApp());
+      await tester.pumpWidget(HymnLandingApp());
       await tester.pumpAndSettle();
       await expectLater(
           find.byType(HymnLandingApp), matchesGoldenFile('goldens/landing.png'));

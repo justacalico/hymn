@@ -49,7 +49,7 @@ void main() {
   group('AppShell', () {
     testWidgets('wide layout shows navigation rail', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppShell(),
+      await pumpPage(tester, state, AppShell(),
           size: const Size(1400, 900));
       expect(find.byType(NavigationRail), findsOneWidget);
       expect(find.text('Dashboard'), findsWidgets);
@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('compact layout shows bottom nav with More', (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppShell(),
+      await pumpPage(tester, state, AppShell(),
           size: const Size(400, 800));
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.text('More'), findsOneWidget);
@@ -74,7 +74,7 @@ void main() {
     testWidgets('tapping rail switches pages without losing state',
         (tester) async {
       final state = await connectedState();
-      await pumpPage(tester, state, const AppShell(),
+      await pumpPage(tester, state, AppShell(),
           size: const Size(1400, 900));
       await tester.tap(find.text('Disks'));
       await tester.pumpAndSettle();
@@ -85,7 +85,7 @@ void main() {
 
   group('landing page', () {
     testWidgets('renders product page on web', (tester) async {
-      await tester.pumpWidget(const HymnLandingApp());
+      await tester.pumpWidget(HymnLandingApp());
       await tester.pumpAndSettle();
       expect(find.text('Hymn'), findsWidgets);
       expect(find.textContaining('without the'), findsOneWidget);
@@ -100,7 +100,7 @@ void main() {
       tester.view.physicalSize = const Size(375, 900);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(const HymnLandingApp());
+      await tester.pumpWidget(HymnLandingApp());
       await tester.pumpAndSettle();
       expect(find.textContaining('control panel'), findsOneWidget);
     });
