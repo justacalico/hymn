@@ -116,7 +116,9 @@ jobs:
           flutter pub get
           flutter analyze --no-pub
           xvfb-run -a flutter test --no-pub --coverage
-          lcov --remove coverage/lcov.info '**/*.g.dart' '**/*.freezed.dart' '**/l10n/**' -o coverage/lcov.cleaned.info
+          lcov --remove coverage/lcov.info '**/*.g.dart' '**/*.freezed.dart' '**/l10n/**' -o coverage/lcov.cleaned.info --ignore-errors unused
+          # Show any uncovered lines so a gate failure is debuggable.
+          lcov --list coverage/lcov.cleaned.info | awk '/^lib\// && $NF !~ /^100.0/ {print}'
           lcov --summary coverage/lcov.cleaned.info --fail-under-lines 100
 
   build:

@@ -68,7 +68,7 @@ fi
 # Mirror to a GitLab release. The tag is kept the same as GitHub.
 # glab in CI will use CI_JOB_TOKEN when GLAB_ENABLE_CI_AUTOLOGIN is set.
 glab release create "$RELEASE_TAG" \
-  --name "Devinorium $RELEASE_TAG" \
+  --name "Hymn $RELEASE_TAG" \
   --notes "Mirrored from the GitHub release." \
   --ref "$RELEASE_COMMIT" \
   --use-package-registry \
