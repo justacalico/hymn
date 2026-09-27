@@ -48,3 +48,4 @@ key.properties
 android/key.properties
 .env*
 coverage/
+*.keystore

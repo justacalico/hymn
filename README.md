@@ -6,6 +6,13 @@ no side server, no config files.
 
 ![CI](https://gitlab.com/HttpAnimations/hymn/badges/main/pipeline.svg)
 
+<p>
+  <img src="test/goldens/shell.png" alt="Dashboard" width="640">
+  <br><br>
+  <img src="test/goldens/onboarding.png" alt="Setup" width="215">
+  <img src="test/goldens/storage.png" alt="Storage" width="215">
+</p>
+
 ## What it does
 
 - **Dashboard** — pools, shares, uptime, live CPU/memory/network at a glance

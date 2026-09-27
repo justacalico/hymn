@@ -12,8 +12,10 @@ import 'ui/theme.dart';
 
 void main() {
   if (kIsWeb) {
+    // coverage:ignore-start
     runApp(const HymnLandingApp());
     return;
+    // coverage:ignore-end
   }
   runZonedGuardedApp();
 }

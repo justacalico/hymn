@@ -303,14 +303,28 @@ class _AlertsBanner extends StatelessWidget {
   }
 }
 
-class _ResourcesCard extends StatelessWidget {
+class _ResourcesCard extends StatefulWidget {
   final SystemInfo system;
 
   const _ResourcesCard({required this.system});
 
   @override
+  State<_ResourcesCard> createState() => _ResourcesCardState();
+}
+
+class _ResourcesCardState extends State<_ResourcesCard> {
+  Stream<RealtimeSample>? _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    // Built once so rebuilds never resubscribe.
+    _stream = context.read<AppState>().client?.realtimeStats();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final client = context.read<AppState>().client;
+    final system = widget.system;
     final theme = Theme.of(context);
     return Panel(
       child: Column(
@@ -319,7 +333,7 @@ class _ResourcesCard extends StatelessWidget {
           sectionLabel(context, 'System'),
           const SizedBox(height: 16),
           StreamBuilder<RealtimeSample>(
-            stream: client?.realtimeStats(),
+            stream: _stream,
             builder: (context, snapshot) {
               final sample = snapshot.data;
               final cpu = sample?.cpuUsage ?? 0;

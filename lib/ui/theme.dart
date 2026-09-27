@@ -55,6 +55,7 @@ class HymnTheme {
   static ThemeData _base(ColorScheme scheme) {
     return ThemeData(
       useMaterial3: true,
+      fontFamily: 'Inter',
       colorScheme: scheme,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

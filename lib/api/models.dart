@@ -10,6 +10,10 @@ Map<String, dynamic> _map(dynamic v) =>
 
 List<dynamic> _list(dynamic v) => v is List ? v : const [];
 
+/// Values of a map, or elements of a list — TrueNAS sometimes reports
+/// collections keyed by device name instead of as arrays.
+Iterable<dynamic> _values(dynamic v) => v is Map ? v.values : _list(v);
+
 int _int(dynamic v) {
   if (v is int) return v;
   if (v is num) return v.toInt();
@@ -388,7 +392,7 @@ class Snapshot {
     } else if (creation['value'] != null) {
       date = DateTime.tryParse(creation['value'].toString());
     }
-    final full = _str(json['id'].toString().isNotEmpty ? json['id'] : json['snapshot_name']);
+    final full = _str(json['id'] ?? json['snapshot_name']);
     final atIndex = full.indexOf('@');
     return Snapshot(
       id: full,
@@ -678,8 +682,11 @@ class RealtimeSample {
   });
 
   factory RealtimeSample.fromJson(Map<String, dynamic> json) {
+    // TrueNAS reports cpu/interfaces/disks as maps keyed by device name
+    // (cpu, cpu0, ... / eth0, ... / sda, ...). Accept lists too so the parser
+    // works with both payload variants.
     double rx = 0, tx = 0;
-    for (final iface in _list(json['interfaces'])) {
+    for (final iface in _values(json['interfaces'])) {
       final stats = _map(iface)['stats'];
       if (stats is Map) {
         rx += _double(stats['received_bytes_rate']);
@@ -690,11 +697,13 @@ class RealtimeSample {
       }
     }
     double dr = 0, dw = 0;
-    for (final disk in _list(json['disks'])) {
+    for (final disk in _values(json['disks'])) {
       dr += _double(_map(disk)['read_bytes']);
       dw += _double(_map(disk)['write_bytes']);
     }
-    final cpu = _map(json['cpu']);
+    final cpuAll = _map(json['cpu']);
+    // the aggregate entry is keyed 'cpu'; fall back to a flat object
+    final cpu = _map(cpuAll['cpu'] ?? json['cpu']);
     final memory = _map(json['memory']);
     var cpuUsage = _double(cpu['user']) + _double(cpu['system']);
     if (cpuUsage > 100) cpuUsage = 100;
