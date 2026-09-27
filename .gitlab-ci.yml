@@ -10,7 +10,7 @@ variables:
   GIT_CLEAN_FLAGS: "-ffdx"
 
 .github-common: &github-common
-  tags: [saas-linux-small-amd64]
+  tags: [linux-truenas]
   image: alpine:3.19
   before_script:
     - apk add --no-cache bash curl jq git github-cli openssh-client
@@ -100,7 +100,7 @@ github-mr-build:
 # pushed with -o ci.skip; the tag push starts the tag pipeline.
 auto-release:
   stage: release
-  tags: [saas-linux-small-amd64]
+  tags: [linux-truenas]
   image: alpine:3.19
   resource_group: auto-release
   timeout: 30m
@@ -126,7 +126,7 @@ auto-release:
 # release with --use-package-registry so binaries never expire.
 github-release-sync:
   stage: release
-  tags: [saas-linux-small-amd64]
+  tags: [linux-truenas]
   image: alpine:3.19
   resource_group: release-sync
   rules:
@@ -144,7 +144,7 @@ github-release-sync:
 # AltStore source on GitLab Pages.
 pages:
   stage: release
-  tags: [saas-linux-small-amd64]
+  tags: [linux-truenas]
   image: alpine:3.19
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger"
