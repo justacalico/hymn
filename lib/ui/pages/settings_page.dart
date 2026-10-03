@@ -114,6 +114,10 @@ class _SettingsView extends StatelessWidget {
                       value: ThemeSetting.dark,
                       label: Text('Dark'),
                       icon: Icon(Icons.dark_mode)),
+                  ButtonSegment(
+                      value: ThemeSetting.oled,
+                      label: Text('OLED'),
+                      icon: Icon(Icons.brightness_2)),
                 ],
                 selected: {state.theme},
                 onSelectionChanged: (s) => state.setTheme(s.first),

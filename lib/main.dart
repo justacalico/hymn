@@ -38,11 +38,13 @@ class HymnApp extends StatelessWidget {
       title: 'Hymn',
       debugShowCheckedModeBanner: false,
       theme: HymnTheme.light(),
-      darkTheme: HymnTheme.dark(),
+      darkTheme: state.theme == ThemeSetting.oled
+          ? HymnTheme.oled()
+          : HymnTheme.dark(),
       themeMode: switch (state.theme) {
         ThemeSetting.system => ThemeMode.system,
         ThemeSetting.light => ThemeMode.light,
-        ThemeSetting.dark => ThemeMode.dark,
+        ThemeSetting.dark || ThemeSetting.oled => ThemeMode.dark,
       },
       home: WindowFrame(child: _buildHome(state)),
     );

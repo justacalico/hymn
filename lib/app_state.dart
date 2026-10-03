@@ -108,7 +108,7 @@ class AppState extends ChangeNotifier {
   }
 }
 
-enum ThemeSetting { system, light, dark }
+enum ThemeSetting { system, light, dark, oled }
 
 extension ThemeSettingX on ThemeSetting {
   static ThemeSetting parse(String value) => ThemeSetting.values.firstWhere(

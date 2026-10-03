@@ -20,6 +20,12 @@ class HymnTheme {
   static const lightCard = Color(0xFFFFFFFF);
   static const lightBorder = Color(0xFFE3E6EB);
 
+  // Pure black surfaces for OLED screens. Cards and borders sit a step
+  // lighter since the hairlines carry all the separation on true black.
+  static const oledSurface = Color(0xFF0A0D12);
+  static const oledCard = Color(0xFF12161D);
+  static const oledBorder = Color(0xFF2A323E);
+
   static ThemeData dark() {
     final scheme = ColorScheme.dark(
       primary: accent,
@@ -49,6 +55,23 @@ class HymnTheme {
       scaffoldBackgroundColor: lightBg,
       cardColor: lightCard,
       dividerColor: lightBorder,
+    );
+  }
+
+  /// Same dark palette but on a true black canvas for OLED screens.
+  static ThemeData oled() {
+    final scheme = ColorScheme.dark(
+      primary: accent,
+      secondary: accentAlt,
+      surface: oledSurface,
+      error: danger,
+      onPrimary: Colors.white,
+      onSurface: const Color(0xFFE8EAED),
+    );
+    return _base(scheme).copyWith(
+      scaffoldBackgroundColor: Colors.black,
+      cardColor: oledCard,
+      dividerColor: oledBorder,
     );
   }
 
