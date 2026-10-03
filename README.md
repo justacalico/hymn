@@ -21,7 +21,6 @@ no side server, no config files.
 - **Shares** — SMB and NFS exports with the options that matter
 - **Snapshots** — one-tap snapshots, grouped history, rollback
 - **Apps** — installed catalog apps: start, stop, open their UIs
-- **Users** — accounts and groups with SMB flags
 - **Stats** — realtime CPU, memory, network and disk I/O graphs
 - **Settings** — services on/off, reboot/shutdown, theme
 

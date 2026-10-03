@@ -93,28 +93,6 @@ abstract class TrueNasApi {
   Future<void> stopApp(String id);
   Future<void> deleteApp(String id, {bool removeImages});
 
-  Future<List<NasUser>> getUsers();
-  Future<int> createUser({
-    required String username,
-    required String fullName,
-    required String password,
-    String? email,
-    bool smb,
-    String home,
-    String shell,
-  });
-  Future<void> updateUser(int id,
-      {String? fullName,
-      String? password,
-      String? email,
-      bool? smb,
-      bool? locked});
-  Future<void> deleteUser(int id, {bool deleteGroup});
-
-  Future<List<NasGroup>> getGroups();
-  Future<int> createGroup(String name, {bool smb});
-  Future<void> deleteGroup(int id, {bool deleteUsers});
-
   Future<List<NasService>> getServices();
   Future<void> startService(String name);
   Future<void> stopService(String name);

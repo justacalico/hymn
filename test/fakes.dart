@@ -207,47 +207,6 @@ class FakeNas implements TrueNasApi {
       _future('deleteApp', null);
 
   @override
-  Future<List<NasUser>> getUsers() =>
-      _future('getUsers', [fakeUser, fakeBuiltinUser]);
-
-  @override
-  Future<int> createUser({
-    required String username,
-    required String fullName,
-    required String password,
-    String? email,
-    bool smb = true,
-    String home = '/var/empty',
-    String shell = '/usr/sbin/nologin',
-  }) =>
-      _future('createUser', 1001);
-
-  @override
-  Future<void> updateUser(int id,
-          {String? fullName,
-          String? password,
-          String? email,
-          bool? smb,
-          bool? locked}) =>
-      _future('updateUser', null);
-
-  @override
-  Future<void> deleteUser(int id, {bool deleteGroup = false}) =>
-      _future('deleteUser', null);
-
-  @override
-  Future<List<NasGroup>> getGroups() =>
-      _future('getGroups', [fakeGroup]);
-
-  @override
-  Future<int> createGroup(String name, {bool smb = true}) =>
-      _future('createGroup', 2001);
-
-  @override
-  Future<void> deleteGroup(int id, {bool deleteUsers = false}) =>
-      _future('deleteGroup', null);
-
-  @override
   Future<List<NasService>> getServices() =>
       _future('getServices', [fakeSmbService, fakeStoppedService]);
 
@@ -411,40 +370,6 @@ const fakeAvailableApp = AvailableApp(
   categories: ['media'],
   catalog: 'TRUENAS',
   train: 'community',
-);
-
-const fakeUser = NasUser(
-  id: 7,
-  uid: 1001,
-  username: 'calico',
-  fullName: 'Calico',
-  email: 'c@example.com',
-  builtin: false,
-  smb: true,
-  locked: false,
-  home: '/var/empty',
-  shell: '/usr/sbin/nologin',
-);
-
-const fakeBuiltinUser = NasUser(
-  id: 1,
-  uid: 0,
-  username: 'root',
-  fullName: 'root',
-  builtin: true,
-  smb: false,
-  locked: false,
-  home: '/root',
-  shell: '/bin/bash',
-);
-
-const fakeGroup = NasGroup(
-  id: 3,
-  gid: 2001,
-  name: 'media',
-  builtin: false,
-  smb: true,
-  users: [1001],
 );
 
 const fakeSmbService = NasService(id: 1, service: 'cifs', enable: true, state: 'RUNNING');

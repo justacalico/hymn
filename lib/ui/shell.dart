@@ -10,7 +10,6 @@ import 'pages/shares_page.dart';
 import 'pages/snapshots_page.dart';
 import 'pages/stats_page.dart';
 import 'pages/storage_page.dart';
-import 'pages/users_page.dart';
 import 'theme.dart';
 
 class NavDestination {
@@ -33,7 +32,6 @@ const destinations = <NavDestination>[
   NavDestination(Icons.photo_camera_outlined, Icons.photo_camera, 'Snapshots',
       SnapshotsPage()),
   NavDestination(Icons.widgets_outlined, Icons.widgets, 'Apps', AppsPage()),
-  NavDestination(Icons.group_outlined, Icons.group, 'Users', UsersPage()),
   NavDestination(Icons.query_stats_outlined, Icons.query_stats, 'Stats',
       StatsPage()),
   NavDestination(Icons.settings_outlined, Icons.settings, 'Settings',

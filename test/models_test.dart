@@ -217,45 +217,6 @@ void main() {
     });
   });
 
-  group('users and groups', () {
-    test('user parses', () {
-      final u = NasUser.fromJson({
-        'id': 7,
-        'uid': 1001,
-        'username': 'calico',
-        'full_name': 'Calico',
-        'email': 'c@x.com',
-        'smb': true,
-        'builtin': false,
-        'locked': false,
-        'groups': [1, 2],
-        'group': {'id': 5},
-        'home': '/var/empty',
-        'shell': '/usr/sbin/nologin',
-      });
-      expect(u.groups, [1, 2]);
-      expect(u.groupId, 5);
-      expect(u.smb, isTrue);
-    });
-
-    test('group id as int also parses', () {
-      final u = NasUser.fromJson({'username': 'x', 'group': 42});
-      expect(u.groupId, 42);
-    });
-
-    test('group parses', () {
-      final g = NasGroup.fromJson({
-        'id': 3,
-        'gid': 2001,
-        'name': 'media',
-        'builtin': false,
-        'smb': true,
-        'users': [1001],
-      });
-      expect(g.users, [1001]);
-    });
-  });
-
   group('services, alerts, jobs', () {
     test('service', () {
       final s = NasService.fromJson(

@@ -286,10 +286,6 @@ class _SpecSheet extends StatelessWidget {
           'into each app\'s own web interface.'
     ),
     (
-      'Accounts',
-      'Manage users and groups with the SMB flags that matter for file sharing.'
-    ),
-    (
       'Live view',
       'Realtime CPU, memory, network and disk graphs streamed over the '
           'TrueNAS websocket API.'

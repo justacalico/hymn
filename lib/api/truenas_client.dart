@@ -417,69 +417,6 @@ class TrueNasClient implements TrueNasApi {
       _request('DELETE', '/app/id/$id',
           body: {'remove_images': removeImages, 'remove_ix_volumes': true});
 
-  // Users & groups
-
-  @override
-  Future<List<NasUser>> getUsers() async =>
-      (await _get('/user')).map((u) => NasUser.fromJson(u)).toList();
-
-  @override
-  Future<int> createUser({
-    required String username,
-    required String fullName,
-    required String password,
-    String? email,
-    bool smb = true,
-    String home = '/var/empty',
-    String shell = '/usr/sbin/nologin',
-  }) async {
-    final id = await _request<int>('POST', '/user', body: {
-      'username': username,
-      'full_name': fullName,
-      'password': password,
-      'email': email,
-      'group_create': true,
-      'groups': <int>[],
-      'home': home,
-      'shell': shell,
-      'smb': smb,
-      'locked': false,
-      'password_disabled': false,
-    });
-    return id;
-  }
-
-  @override
-  Future<void> updateUser(int id,
-          {String? fullName,
-          String? password,
-          String? email,
-          bool? smb,
-          bool? locked}) =>
-      _request('PUT', '/user/id/$id', body: {
-        'full_name': ?fullName,
-        'password': ?password,
-        'email': ?email,
-        'smb': ?smb,
-        'locked': ?locked,
-      });
-
-  @override
-  Future<void> deleteUser(int id, {bool deleteGroup = false}) =>
-      _request('DELETE', '/user/id/$id', body: {'delete_group': deleteGroup});
-
-  @override
-  Future<List<NasGroup>> getGroups() async =>
-      (await _get('/group')).map((g) => NasGroup.fromJson(g)).toList();
-
-  @override
-  Future<int> createGroup(String name, {bool smb = true}) async =>
-      _request<int>('POST', '/group', body: {'name': name, 'smb': smb});
-
-  @override
-  Future<void> deleteGroup(int id, {bool deleteUsers = false}) =>
-      _request('DELETE', '/group/id/$id', body: {'delete_users': deleteUsers});
-
   // Services
 
   @override
