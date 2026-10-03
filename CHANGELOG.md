@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [v0.2.0](https://gitlab.com/HttpAnimations/hymn/compare/451172eb72280ee6b39475ba874e8e482e9c1228..v0.2.0) - 2026-10-03
+#### Features
+- 新增 OLED 纯黑主题 - ([586f0d5](https://gitlab.com/HttpAnimations/hymn/commit/586f0d5b796b9ed410d2d6557763bea97de42459)) - HttpAnimations
+- 桌面端自定义窗口标题栏 - ([5d073c5](https://gitlab.com/HttpAnimations/hymn/commit/5d073c5df16ed9f87f4069543b0b5e8ec5ba49a4)) - HttpAnimations
+
+- - -
+
 ## [v0.1.2](https://gitlab.com/HttpAnimations/hymn/compare/8795b495a0ef45f89039d5293a0f6cce917a5585..v0.1.2) - 2026-09-27
 #### Bug Fixes
 - Pages 唯一域名的链接与 base-href - ([816eceb](https://gitlab.com/HttpAnimations/hymn/commit/816eceb01ae4ac2379d9d79d20fbfbe309748995)) - calico
