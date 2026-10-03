@@ -501,6 +501,9 @@ void main() {
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
       expect(state.theme, ThemeSetting.dark);
+      await tester.tap(find.text('OLED'));
+      await tester.pumpAndSettle();
+      expect(state.theme, ThemeSetting.oled);
     });
 
     testWidgets('disconnect clears config', (tester) async {

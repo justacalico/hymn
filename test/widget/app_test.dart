@@ -5,6 +5,7 @@ import 'package:hymn/main.dart';
 import 'package:hymn/ui/landing.dart';
 import 'package:hymn/ui/pages/onboarding_page.dart';
 import 'package:hymn/ui/shell.dart';
+import 'package:hymn/ui/theme.dart';
 import 'package:provider/provider.dart';
 
 import '../fakes.dart';
@@ -43,6 +44,16 @@ void main() {
       await tester.pump();
       final app2 = tester.widget<MaterialApp>(find.byType(MaterialApp).first);
       expect(app2.themeMode, ThemeMode.light);
+    });
+
+    testWidgets('oled theme stays dark but paints true black', (tester) async {
+      final state = await makeState();
+      await state.setTheme(ThemeSetting.oled);
+      await tester.pumpWidget(buildAppForTest(state));
+      final app = tester.widget<MaterialApp>(find.byType(MaterialApp).first);
+      expect(app.themeMode, ThemeMode.dark);
+      expect(app.darkTheme!.scaffoldBackgroundColor, Colors.black);
+      expect(app.darkTheme!.cardColor, HymnTheme.oledCard);
     });
   });
 

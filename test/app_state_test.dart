@@ -78,6 +78,7 @@ void main() {
 
   test('ThemeSettingX.parse handles unknowns', () {
     expect(ThemeSettingX.parse('dark'), ThemeSetting.dark);
+    expect(ThemeSettingX.parse('oled'), ThemeSetting.oled);
     expect(ThemeSettingX.parse('bogus'), ThemeSetting.system);
   });
 }
