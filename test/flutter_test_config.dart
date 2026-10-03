@@ -34,8 +34,37 @@ Future<void> loadAppFonts() async {
   }
 }
 
+/// Gives every test a fake window_manager channel. Without it, calls like
+/// `isMaximized` hang the messenger instead of throwing, which stalls
+/// anything that awaits them (including `main()`).
+void mockWindowManager() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(const MethodChannel('window_manager'),
+          (call) async {
+    return switch (call.method) {
+      'isVisible' ||
+      'isMaximized' ||
+      'isMinimized' ||
+      'isFullScreen' ||
+      'isAlwaysOnTop' ||
+      'isFocused' ||
+      'isPreventClose' ||
+      'isSkipTaskbar' ||
+      'isMinimizable' ||
+      'isMaximizable' ||
+      'isClosable' ||
+      'isResizable' =>
+        false,
+      'getId' => 0,
+      'getDevicePixelRatio' || 'getTitleBarHeight' => 1.0,
+      _ => null,
+    };
+  });
+}
+
 FutureOr<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   await loadAppFonts();
+  mockWindowManager();
   return testMain();
 }
