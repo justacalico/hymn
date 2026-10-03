@@ -9,6 +9,8 @@ import 'ui/landing.dart';
 import 'ui/pages/onboarding_page.dart';
 import 'ui/shell.dart';
 import 'ui/theme.dart';
+import 'ui/window_frame_stub.dart'
+    if (dart.library.io) 'ui/window_frame.dart';
 
 void main() {
   if (kIsWeb) {
@@ -42,7 +44,7 @@ class HymnApp extends StatelessWidget {
         ThemeSetting.light => ThemeMode.light,
         ThemeSetting.dark => ThemeMode.dark,
       },
-      home: _buildHome(state),
+      home: WindowFrame(child: _buildHome(state)),
     );
   }
 

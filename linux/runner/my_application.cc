@@ -44,12 +44,16 @@ static void my_application_activate(GApplication* application) {
 #endif
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
-    gtk_widget_show(GTK_WIDGET(header_bar));
     gtk_header_bar_set_title(header_bar, "Hymn");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
+    // Flutter draws its own title bar. Keeping a hidden header bar attached
+    // preserves the client-side decorations (shadow, edge resizing) while
+    // staying invisible from the first frame.
+    gtk_widget_hide(GTK_WIDGET(header_bar));
   } else {
     gtk_window_set_title(window, "Hymn");
+    gtk_window_set_decorated(window, FALSE);
   }
 
   gtk_window_set_default_size(window, 1280, 720);
