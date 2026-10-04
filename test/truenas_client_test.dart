@@ -269,36 +269,6 @@ void main() {
       expect(jsonDecode(adapter.lastBody!)['remove_images'], true);
     });
 
-    test('users and groups', () async {
-      final adapter = FakeAdapter({
-        'GET /user': [
-          {'id': 7, 'username': 'u'}
-        ],
-        'POST /user': 1001,
-        'PUT /user/id/7': null,
-        'DELETE /user/id/7': null,
-        'GET /group': [
-          {'id': 3, 'name': 'g'}
-        ],
-        'POST /group': 2001,
-        'DELETE /group/id/3': null,
-      });
-      final dio = Dio(BaseOptions(baseUrl: 'https://nas.test/api/v2.0'))
-        ..httpClientAdapter = adapter;
-      final c = TrueNasClient(testConfig, dio: dio);
-      expect((await c.getUsers()).single.username, 'u');
-      expect(
-          await c.createUser(username: 'u', fullName: 'U', password: 'p'), 1001);
-      expect(jsonDecode(adapter.lastBody!)['group_create'], true);
-      await c.updateUser(7, fullName: 'N', locked: true);
-      expect(jsonDecode(adapter.lastBody!)['locked'], true);
-      await c.deleteUser(7, deleteGroup: true);
-      expect((await c.getGroups()).single.name, 'g');
-      expect(await c.createGroup('g2'), 2001);
-      await c.deleteGroup(3, deleteUsers: true);
-      expect(jsonDecode(adapter.lastBody!)['delete_users'], true);
-    });
-
     test('services', () async {
       final adapter = FakeAdapter({
         'GET /service': [

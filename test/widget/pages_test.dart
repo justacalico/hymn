@@ -12,7 +12,6 @@ import 'package:hymn/ui/pages/shares_page.dart';
 import 'package:hymn/ui/pages/snapshots_page.dart';
 import 'package:hymn/ui/pages/stats_page.dart';
 import 'package:hymn/ui/pages/storage_page.dart';
-import 'package:hymn/ui/pages/users_page.dart';
 
 import '../fakes.dart';
 
@@ -394,44 +393,6 @@ void main() {
       final state = await connectedState(nas: nas);
       await pumpPage(tester, state, AppsPage());
       expect(find.text('No apps installed'), findsOneWidget);
-    });
-  });
-
-  group('UsersPage', () {
-    testWidgets('lists users and groups', (tester) async {
-      final state = await connectedState();
-      await pumpPage(tester, state, UsersPage());
-      expect(find.text('calico'), findsOneWidget);
-      expect(find.text('root'), findsOneWidget);
-      expect(find.text('media'), findsOneWidget);
-      expect(find.textContaining('gid 2001'), findsOneWidget);
-    });
-
-    testWidgets('create user', (tester) async {
-      final nas = FakeNas();
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      await tester.tap(find.byIcon(Icons.person_add_outlined));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Create user'));
-      await tester.pump();
-      expect(nas.calls, isNot(contains('createUser')));
-      await tester.enterText(find.byType(TextField).at(0), 'newbie');
-      await tester.enterText(find.byType(TextField).at(2), 'secret');
-      await tester.tap(find.text('Create user'));
-      await tester.pumpAndSettle();
-      expect(nas.calls, contains('createUser'));
-    });
-
-    testWidgets('delete non-builtin user', (tester) async {
-      final nas = FakeNas();
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      await tester.tap(find.byIcon(Icons.delete_outline).first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Delete'));
-      await tester.pumpAndSettle();
-      expect(nas.calls, contains('deleteUser'));
     });
   });
 

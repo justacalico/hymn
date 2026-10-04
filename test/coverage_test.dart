@@ -22,7 +22,6 @@ import 'package:hymn/ui/pages/shares_page.dart';
 import 'package:hymn/ui/pages/snapshots_page.dart';
 import 'package:hymn/ui/pages/stats_page.dart';
 import 'package:hymn/ui/pages/storage_page.dart';
-import 'package:hymn/ui/pages/users_page.dart';
 import 'package:hymn/ui/shell.dart';
 import 'package:hymn/ui/theme.dart';
 import 'package:mocktail/mocktail.dart';
@@ -239,20 +238,14 @@ void main() {
               e is TrueNasException && e.statusCode == 418)));
     });
 
-    test('updateDataset compression and updateUser extras', () async {
+    test('updateDataset compression', () async {
       final adapter = FakeAdapter({
         'PUT /pool/dataset/id/a%2Fb': null,
-        'PUT /user/id/7': null,
       });
       final dio = fakeDio({})..httpClientAdapter = adapter;
       final c = TrueNasClient(testConfig, dio: dio);
       await c.updateDataset('a/b', compression: 'OFF');
       expect(jsonDecode(adapter.lastBody!)['compression'], 'OFF');
-      await c.updateUser(7, password: 'pw', email: 'e@x', smb: true);
-      final body = jsonDecode(adapter.lastBody!);
-      expect(body['password'], 'pw');
-      expect(body['email'], 'e@x');
-      expect(body['smb'], true);
     });
 
     test('websocket stream error propagates', () async {
@@ -720,79 +713,6 @@ void main() {
       nas.failAll = true;
       await tester.tap(find.text('Create pool').last);
       await tester.pumpAndSettle();
-    });
-  });
-
-  group('users extras', () {
-    testWidgets('locked user shows lock icon', (tester) async {
-      final nas = FakeNas()
-        ..overrides['getUsers'] = <NasUser>[
-          const NasUser(
-              id: 9,
-              uid: 1005,
-              username: 'locked',
-              fullName: 'Locked',
-              builtin: false,
-              smb: true,
-              locked: true,
-              home: '/var/empty',
-              shell: '/usr/sbin/nologin'),
-        ];
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
-    });
-
-    testWidgets('completely empty lists', (tester) async {
-      final nas = FakeNas()
-        ..overrides['getUsers'] = <NasUser>[]
-        ..overrides['getGroups'] = <NasGroup>[];
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      expect(find.text('No users'), findsOneWidget);
-      expect(find.text('No groups'), findsOneWidget);
-    });
-
-    testWidgets('empty lists and builtin group label', (tester) async {
-      final nas = FakeNas()
-        ..overrides['getUsers'] = <NasUser>[]
-        ..overrides['getGroups'] = <NasGroup>[
-          const NasGroup(
-              id: 1, gid: 0, name: 'wheel', builtin: true, smb: false),
-        ];
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      expect(find.text('No users'), findsOneWidget);
-      expect(find.text('wheel'), findsOneWidget);
-      expect(find.text('system'), findsOneWidget);
-    });
-
-    testWidgets('delete user failure toast', (tester) async {
-      final nas = FakeNas();
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      nas.failAll = true;
-      await tester.tap(find.byIcon(Icons.delete_outline).first);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Delete'));
-      await tester.pumpAndSettle();
-      expect(nas.calls, contains('deleteUser'));
-    });
-
-    testWidgets('create user failure and smb toggle', (tester) async {
-      final nas = FakeNas();
-      final state = await connectedState(nas: nas);
-      await pumpPage(tester, state, UsersPage());
-      await tester.tap(find.byIcon(Icons.person_add_outlined));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Allow SMB access'));
-      await tester.pump();
-      await tester.enterText(find.byType(TextField).at(0), 'x');
-      await tester.enterText(find.byType(TextField).at(2), 'pw');
-      nas.failAll = true;
-      await tester.tap(find.text('Create user'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('fake failure'), findsWidgets);
     });
   });
 

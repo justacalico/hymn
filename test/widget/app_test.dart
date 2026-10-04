@@ -73,11 +73,11 @@ void main() {
           size: const Size(400, 800));
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.text('More'), findsOneWidget);
-      // Open the More sheet and jump to Users.
+      // Open the More sheet and jump to Stats.
       await tester.tap(find.text('More'));
       await tester.pumpAndSettle();
-      expect(find.text('Users'), findsOneWidget);
-      await tester.tap(find.text('Users'));
+      expect(find.text('Stats'), findsOneWidget);
+      await tester.tap(find.text('Stats'));
       await tester.pumpAndSettle();
       expect(state.navIndex, 6);
     });
